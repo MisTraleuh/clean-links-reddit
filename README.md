@@ -2,6 +2,10 @@
 
 A Reddit Devvit moderation app that detects URLs containing tracking parameters and helps moderators deal with them — quietly, reliably, and without pretending it can do things it can't.
 
+**Clean Links is free and open source** (BSD-3-Clause), hosted at
+[github.com/MisTraleuh/clean-links-reddit](https://github.com/MisTraleuh/clean-links-reddit).
+Issues, ideas and pull requests are welcome.
+
 ## What it does
 
 - Detects tracking parameters in URLs across posts and comments
@@ -196,3 +200,14 @@ The URL-cleaning, text-extraction, templating and comment-formatting logic are
 pure functions with no Devvit dependency, covered by the tests in `test/`. The
 Devvit runtime is stubbed in `test/devvit-stub.ts` so the suite runs in plain
 Node.
+
+## Contributing
+
+This project is open source and contributions are welcome — bug reports,
+feature ideas, and pull requests. Please run `npm run type-check` and
+`npm test` before opening a PR.
+
+## License
+
+Released under the [BSD-3-Clause License](LICENSE). © Nathan Catalan
+(MisTraleuh).
