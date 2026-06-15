@@ -2,6 +2,15 @@
 
 import type { TriggerContext } from "@devvit/public-api";
 import { dedupeLinks, type CleanedLink } from "./url-cleaning.js";
+import { applyTemplate } from "./templating.js";
+
+/** Context used to expand placeholders in a custom footer message. */
+export interface CommentContext {
+  /** Author username, without the leading u/. */
+  author?: string;
+  /** Subreddit name, without the leading r/. */
+  subreddit?: string;
+}
 
 /** Format a single link for a multi-link list line. */
 function formatLinkLine(link: CleanedLink): string {
@@ -22,13 +31,15 @@ function formatLinkLine(link: CleanedLink): string {
  * When `includeFooter` is true a footer is appended. If `customMessage` is a
  * non-empty string it is used as the footer text (moderators can explain, in
  * their own words, why the link was cleaned); otherwise the default note is
- * used.
+ * used. Placeholders in the custom message ({author}, {subreddit}, {count},
+ * {cleaned_links}) are expanded from `commentContext` and the cleaned links.
  */
 export function buildCommentBody(
   cleanedLinks: CleanedLink[],
   includeFooter: boolean,
   compactAbove: number = 0,
-  customMessage: string = ""
+  customMessage: string = "",
+  commentContext: CommentContext = {}
 ): string {
   const links = dedupeLinks(cleanedLinks);
   const useCompact = compactAbove > 0 && links.length > compactAbove;
@@ -56,8 +67,14 @@ export function buildCommentBody(
   }
 
   if (includeFooter) {
-    const footer = customMessage.trim()
-      ? customMessage.trim()
+    const trimmed = customMessage.trim();
+    const footer = trimmed
+      ? applyTemplate(trimmed, {
+          author: commentContext.author,
+          subreddit: commentContext.subreddit,
+          count: links.length,
+          cleanedLinks: links.map((l) => l.cleaned),
+        })
       : "*Tracking parameters were removed from the original URL(s).*";
     lines.push("", "---", footer);
   }
@@ -72,12 +89,19 @@ export async function submitModComment(
   cleanedLinks: CleanedLink[],
   includeFooter: boolean,
   compactAbove: number = 0,
-  customMessage: string = ""
+  customMessage: string = "",
+  commentContext: CommentContext = {}
 ): Promise<void> {
   const links = dedupeLinks(cleanedLinks);
   if (links.length === 0) return;
 
-  const text = buildCommentBody(links, includeFooter, compactAbove, customMessage);
+  const text = buildCommentBody(
+    links,
+    includeFooter,
+    compactAbove,
+    customMessage,
+    commentContext
+  );
   const comment = await context.reddit.submitComment({
     id: thingId,
     text,

@@ -100,7 +100,8 @@ Custom parameters can be added via settings.
 | allowlist_domains | string | "" | Only process these domains |
 | denylist_domains | string | "" | Ignore these domains |
 | include_footer | boolean | true | Add explanation footer to bot comments |
-| custom_footer_message | paragraph | "" | Custom text that replaces the default footer note (Markdown supported) |
+| custom_footer_message | paragraph | "" | Custom text that replaces the default footer note (Markdown + placeholders) |
+| notify_author | boolean | false | Also send the explanation to the author by private message |
 | report_reason | string | (default) | Reason string for report_to_mods mode |
 
 ## Custom footer message
@@ -134,6 +135,35 @@ Notes:
   default note is used.
 - Supports Markdown, since Reddit comments render Markdown.
 
+### Placeholders
+
+The custom message (and the DM message below) supports placeholders that are
+expanded per action:
+
+| Placeholder | Expands to |
+|-------------|-----------|
+| `{author}` | `u/<username>` of the post/comment author (or "the author") |
+| `{subreddit}` | `r/<name>` of the community (or "this community") |
+| `{count}` | number of cleaned links in this action |
+| `{cleaned_links}` | newline-separated list of the cleaned URLs |
+
+Example: `Hi {author}, we cleaned {count} link(s) in {subreddit}:\n{cleaned_links}`
+
+Unknown placeholders are left as-is, so a stray `{` never eats your text.
+
+## Notify the author by private message
+
+Most users never see the public bot comment — they post, move on, and only find
+out something was off when a moderator mod-mails them. Enabling `notify_author`
+sends the author a **subreddit private message** with the cleaned links and your
+custom message (or a default explanation when none is set).
+
+- Applies to **comment**, **remove_posts** and **report_to_mods** modes (not dry run).
+- Uses the same placeholders as the custom footer message.
+- Sent from the subreddit, so replies land in mod mail.
+- Use responsibly — combined with `report_to_mods`, it lets you educate users
+  privately with zero public bot noise.
+
 ## Anti-spam / Idempotency
 
 Every processed item is recorded in Redis (`processed:post:{id}`, `processed:comment:{id}`) with a 7-day TTL. The bot will never act on the same item twice, regardless of mode.
@@ -147,7 +177,22 @@ If upgrading from the previous 3-mode version:
 - **New `compact_above` setting** — when many links are cleaned, the bot uses a shorter summary instead of listing every URL.
 - **New `report_reason` setting** — customize the reason string sent to the mod queue.
 - **Improved comment formatting** — single vs. multiple link templates, optional compact mode.
-- **New `custom_footer_message` setting** — replace the default footer note with a custom explanation tailored to your community.
+- **New `custom_footer_message` setting** — replace the default footer note with a custom explanation tailored to your community (with `{author}`, `{subreddit}`, `{count}`, `{cleaned_links}` placeholders).
+- **New `notify_author` setting** — privately message the author the explanation, so users who never see the public comment still learn how to avoid tracking links.
 - No change to the principle that **user content is never edited**.
 - No change to the principle that **comments are never removed**.
 - All existing settings remain compatible.
+
+## Development
+
+```bash
+npm install        # install dependencies
+npm run type-check # tsc type-check
+npm test           # run the Vitest unit suite
+npm run dev        # devvit playtest on a test subreddit (requires devvit login)
+```
+
+The URL-cleaning, text-extraction, templating and comment-formatting logic are
+pure functions with no Devvit dependency, covered by the tests in `test/`. The
+Devvit runtime is stubbed in `test/devvit-stub.ts` so the suite runs in plain
+Node.

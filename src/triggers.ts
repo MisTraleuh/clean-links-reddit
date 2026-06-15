@@ -12,6 +12,7 @@ import {
 import { cleanTextLinks } from "./text-cleaning.js";
 import { shouldIgnoreAuthor, isSelfComment } from "./guards.js";
 import { submitModComment } from "./comments.js";
+import { notifyAuthorByDm } from "./notify.js";
 import { reportPost, reportComment } from "./reporting.js";
 import { claimForProcessing } from "./storage.js";
 
@@ -110,6 +111,23 @@ export async function onPostCreate(
       return;
     }
 
+    // --- notify author by DM (mode-independent, skipped for dry_run) ---
+    if (settings.notifyAuthor) {
+      try {
+        await notifyAuthorByDm(context, {
+          author: event.author?.name,
+          subreddit: event.subreddit?.name,
+          cleanedLinks: links,
+          customMessage: settings.customMessage,
+        });
+      } catch (err) {
+        console.error("clean-links: failed to DM author", {
+          postId: post.id,
+          error: err,
+        });
+      }
+    }
+
     // --- report_to_mods ---
     if (settings.mode === "report_to_mods") {
       try {
@@ -145,7 +163,8 @@ export async function onPostCreate(
         links,
         settings.includeFooter,
         settings.compactAbove,
-        settings.customMessage
+        settings.customMessage,
+        { author: event.author?.name, subreddit: event.subreddit?.name }
       );
       console.log("clean-links: removed post and commented", {
         postId: post.id,
@@ -161,7 +180,8 @@ export async function onPostCreate(
       links,
       settings.includeFooter,
       settings.compactAbove,
-      settings.customMessage
+      settings.customMessage,
+      { author: event.author?.name, subreddit: event.subreddit?.name }
     );
     console.log("clean-links: commented on post", {
       postId: post.id,
@@ -226,6 +246,23 @@ export async function onCommentCreate(
       return;
     }
 
+    // --- notify author by DM (mode-independent, skipped for dry_run) ---
+    if (settings.notifyAuthor) {
+      try {
+        await notifyAuthorByDm(context, {
+          author: event.author?.name,
+          subreddit: event.subreddit?.name,
+          cleanedLinks: links,
+          customMessage: settings.customMessage,
+        });
+      } catch (err) {
+        console.error("clean-links: failed to DM author", {
+          commentId: comment.id,
+          error: err,
+        });
+      }
+    }
+
     // --- report_to_mods ---
     if (settings.mode === "report_to_mods") {
       try {
@@ -260,7 +297,8 @@ export async function onCommentCreate(
       links,
       settings.includeFooter,
       settings.compactAbove,
-      settings.customMessage
+      settings.customMessage,
+      { author: event.author?.name, subreddit: event.subreddit?.name }
     );
     console.log("clean-links: commented on comment", {
       commentId: comment.id,

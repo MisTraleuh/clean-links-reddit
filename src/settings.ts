@@ -20,6 +20,7 @@ export interface CleanSettings {
   denylistDomains: string[];
   includeFooter: boolean;
   customMessage: string;
+  notifyAuthor: boolean;
   reportReason: string;
 }
 
@@ -250,7 +251,23 @@ export function registerSettings(): void {
         "cleaned and how users can avoid it next time (for example: copy the " +
         "URL from the address bar instead of using the platform's share button). " +
         "Supports Markdown. Requires the footer toggle above to be enabled, and " +
-        "only applies to comment and remove_posts modes.",
+        "only applies to comment and remove_posts modes. You can personalize it " +
+        "with {author}, {subreddit}, {count} and {cleaned_links} placeholders.",
+    },
+
+    // --- Notify author ---
+    {
+      name: "notify_author",
+      label: "Also send the explanation to the author by private message",
+      type: "boolean",
+      scope: SettingScope.Installation,
+      defaultValue: false,
+      helpText:
+        "When enabled, the author is sent a subreddit private message with the " +
+        "cleaned links and your custom message (or a default explanation). " +
+        "Useful because most users never see the public bot comment. Applies to " +
+        "comment, remove_posts and report_to_mods modes (not dry run). Use " +
+        "responsibly to avoid messaging fatigue.",
     },
 
     // --- Report reason ---
@@ -306,6 +323,7 @@ export async function loadSettings(
     denylistDomains,
     includeFooter,
     customFooterMessage,
+    notifyAuthor,
     reportReason,
   ] = await Promise.all([
     context.settings.get("mode"),
@@ -322,6 +340,7 @@ export async function loadSettings(
     context.settings.get("denylist_domains") as Promise<string | undefined>,
     context.settings.get("include_footer") as Promise<boolean | undefined>,
     context.settings.get("custom_footer_message") as Promise<string | undefined>,
+    context.settings.get("notify_author") as Promise<boolean | undefined>,
     context.settings.get("report_reason") as Promise<string | undefined>,
   ]);
 
@@ -344,6 +363,7 @@ export async function loadSettings(
     denylistDomains: parseCommaSeparated(denylistDomains as string),
     includeFooter: includeFooter ?? true,
     customMessage: (customFooterMessage as string) ?? "",
+    notifyAuthor: notifyAuthor ?? false,
     reportReason: (reportReason as string) || DEFAULT_REPORT_REASON,
   };
 }
