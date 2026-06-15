@@ -1,1 +1,9 @@
 node_modules
+
+# Local environment / Devvit CLI settings
+.env
+.env.*
+
+# TypeScript build output
+*.tsbuildinfo
+src/*.js
