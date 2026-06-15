@@ -18,11 +18,17 @@ function formatLinkLine(link: CleanedLink): string {
  * - Single bare link:        Cleaned link:\n<url>
  * - Multiple links:          Cleaned links:\n- Label → url\n- url
  * - Compact (above threshold): count + first 3 + "...and N more"
+ *
+ * When `includeFooter` is true a footer is appended. If `customMessage` is a
+ * non-empty string it is used as the footer text (moderators can explain, in
+ * their own words, why the link was cleaned); otherwise the default note is
+ * used.
  */
 export function buildCommentBody(
   cleanedLinks: CleanedLink[],
   includeFooter: boolean,
-  compactAbove: number = 0
+  compactAbove: number = 0,
+  customMessage: string = ""
 ): string {
   const links = dedupeLinks(cleanedLinks);
   const useCompact = compactAbove > 0 && links.length > compactAbove;
@@ -50,11 +56,10 @@ export function buildCommentBody(
   }
 
   if (includeFooter) {
-    lines.push(
-      "",
-      "---",
-      "*Tracking parameters were removed from the original URL(s).*"
-    );
+    const footer = customMessage.trim()
+      ? customMessage.trim()
+      : "*Tracking parameters were removed from the original URL(s).*";
+    lines.push("", "---", footer);
   }
 
   return lines.join("\n");
@@ -66,12 +71,13 @@ export async function submitModComment(
   thingId: string,
   cleanedLinks: CleanedLink[],
   includeFooter: boolean,
-  compactAbove: number = 0
+  compactAbove: number = 0,
+  customMessage: string = ""
 ): Promise<void> {
   const links = dedupeLinks(cleanedLinks);
   if (links.length === 0) return;
 
-  const text = buildCommentBody(links, includeFooter, compactAbove);
+  const text = buildCommentBody(links, includeFooter, compactAbove, customMessage);
   const comment = await context.reddit.submitComment({
     id: thingId,
     text,

@@ -144,7 +144,8 @@ export async function onPostCreate(
         post.id,
         links,
         settings.includeFooter,
-        settings.compactAbove
+        settings.compactAbove,
+        settings.customMessage
       );
       console.log("clean-links: removed post and commented", {
         postId: post.id,
@@ -159,7 +160,8 @@ export async function onPostCreate(
       post.id,
       links,
       settings.includeFooter,
-      settings.compactAbove
+      settings.compactAbove,
+      settings.customMessage
     );
     console.log("clean-links: commented on post", {
       postId: post.id,
@@ -257,7 +259,8 @@ export async function onCommentCreate(
       comment.id,
       links,
       settings.includeFooter,
-      settings.compactAbove
+      settings.compactAbove,
+      settings.customMessage
     );
     console.log("clean-links: commented on comment", {
       commentId: comment.id,

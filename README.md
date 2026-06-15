@@ -100,7 +100,39 @@ Custom parameters can be added via settings.
 | allowlist_domains | string | "" | Only process these domains |
 | denylist_domains | string | "" | Ignore these domains |
 | include_footer | boolean | true | Add explanation footer to bot comments |
+| custom_footer_message | paragraph | "" | Custom text that replaces the default footer note (Markdown supported) |
 | report_reason | string | (default) | Reason string for report_to_mods mode |
+
+## Custom footer message
+
+By default, bot comments end with a short generic note:
+
+```
+---
+*Tracking parameters were removed from the original URL(s).*
+```
+
+Most users strip tracking params **involuntarily** — they hit the platform's
+*share* button, paste the result, and have no idea why a link looks "off". The
+`custom_footer_message` setting lets moderators replace that generic note with
+their own explanation, so users learn how to avoid the issue without a manual
+mod-mail follow-up.
+
+Example custom message:
+
+```
+---
+Heads up — your link contained tracking parameters, so here's a clean version.
+This usually happens when you use the in-app **Share** button. Next time, copy
+the URL straight from your browser's address bar and it'll stay clean. Thanks!
+```
+
+Notes:
+
+- Applies to **comment** and **remove_posts** modes (the modes that post a reply).
+- Requires `include_footer` to be enabled. When the message is empty, the
+  default note is used.
+- Supports Markdown, since Reddit comments render Markdown.
 
 ## Anti-spam / Idempotency
 
@@ -115,6 +147,7 @@ If upgrading from the previous 3-mode version:
 - **New `compact_above` setting** — when many links are cleaned, the bot uses a shorter summary instead of listing every URL.
 - **New `report_reason` setting** — customize the reason string sent to the mod queue.
 - **Improved comment formatting** — single vs. multiple link templates, optional compact mode.
+- **New `custom_footer_message` setting** — replace the default footer note with a custom explanation tailored to your community.
 - No change to the principle that **user content is never edited**.
 - No change to the principle that **comments are never removed**.
 - All existing settings remain compatible.

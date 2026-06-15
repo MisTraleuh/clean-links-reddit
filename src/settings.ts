@@ -19,6 +19,7 @@ export interface CleanSettings {
   allowlistDomains: string[];
   denylistDomains: string[];
   includeFooter: boolean;
+  customMessage: string;
   reportReason: string;
 }
 
@@ -232,8 +233,24 @@ export function registerSettings(): void {
       scope: SettingScope.Installation,
       defaultValue: true,
       helpText:
-        "Appends a short note explaining that tracking parameters were removed. " +
+        "Appends a note at the bottom of bot comments. By default this is a " +
+        "short 'tracking parameters were removed' explanation, but it can be " +
+        "replaced with your own text via the custom footer message below. " +
         "Only applies to comment and remove_posts modes.",
+    },
+    {
+      name: "custom_footer_message",
+      label: "Custom footer message (replaces the default explanation)",
+      type: "paragraph",
+      scope: SettingScope.Installation,
+      defaultValue: "",
+      helpText:
+        "Optional. When set, this text replaces the default footer note on bot " +
+        "comments. Use it to explain, in your own words, why the link was " +
+        "cleaned and how users can avoid it next time (for example: copy the " +
+        "URL from the address bar instead of using the platform's share button). " +
+        "Supports Markdown. Requires the footer toggle above to be enabled, and " +
+        "only applies to comment and remove_posts modes.",
     },
 
     // --- Report reason ---
@@ -288,6 +305,7 @@ export async function loadSettings(
     allowlistDomains,
     denylistDomains,
     includeFooter,
+    customFooterMessage,
     reportReason,
   ] = await Promise.all([
     context.settings.get("mode"),
@@ -303,6 +321,7 @@ export async function loadSettings(
     context.settings.get("allowlist_domains") as Promise<string | undefined>,
     context.settings.get("denylist_domains") as Promise<string | undefined>,
     context.settings.get("include_footer") as Promise<boolean | undefined>,
+    context.settings.get("custom_footer_message") as Promise<string | undefined>,
     context.settings.get("report_reason") as Promise<string | undefined>,
   ]);
 
@@ -324,6 +343,7 @@ export async function loadSettings(
     allowlistDomains: parseCommaSeparated(allowlistDomains as string),
     denylistDomains: parseCommaSeparated(denylistDomains as string),
     includeFooter: includeFooter ?? true,
+    customMessage: (customFooterMessage as string) ?? "",
     reportReason: (reportReason as string) || DEFAULT_REPORT_REASON,
   };
 }
