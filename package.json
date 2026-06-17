@@ -13,10 +13,10 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@devvit/public-api": "0.12.4"
+    "@devvit/public-api": "^0.12.24"
   },
   "devDependencies": {
-    "devvit": "0.12.4",
+    "devvit": "^0.12.24",
     "dotenv-cli": "8.0.0",
     "typescript": "5.8.3",
     "vitest": "^2.1.9"
