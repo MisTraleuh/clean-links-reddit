@@ -74,6 +74,7 @@ export function buildCommentBody(
           subreddit: commentContext.subreddit,
           count: links.length,
           cleanedLinks: links.map((l) => l.cleaned),
+          originalLinks: links.map((l) => l.original),
         })
       : "*Tracking parameters were removed from the original URL(s).*";
     lines.push("", "---", footer);

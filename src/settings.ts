@@ -337,7 +337,9 @@ export function registerSettings(): void {
         "URL from the address bar instead of using the platform's share button). " +
         "Supports Markdown. Requires the footer toggle above to be enabled, and " +
         "only applies to comment and remove_posts modes. You can personalize it " +
-        "with {author}, {subreddit}, {count} and {cleaned_links} placeholders.",
+        "with these placeholders: {author}, {subreddit}, {count}, " +
+        "{cleaned_link} and {dirty_link} (the user's actual first link), and " +
+        "{cleaned_links} / {dirty_links} (newline-separated lists of all links).",
     },
 
     // --- Notify author ---

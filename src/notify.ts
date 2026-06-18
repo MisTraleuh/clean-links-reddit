@@ -48,6 +48,7 @@ export async function notifyAuthorByDm(
         subreddit,
         count: links.length,
         cleanedLinks: links.map((l) => l.cleaned),
+        originalLinks: links.map((l) => l.original),
       })
     : DEFAULT_DM_INTRO;
 

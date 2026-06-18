@@ -149,7 +149,16 @@ expanded per action:
 | `{author}` | `u/<username>` of the post/comment author (or "the author") |
 | `{subreddit}` | `r/<name>` of the community (or "this community") |
 | `{count}` | number of cleaned links in this action |
+| `{cleaned_link}` | the user's actual **first** cleaned URL |
+| `{dirty_link}` | the user's actual **first** original (dirty) URL |
 | `{cleaned_links}` | newline-separated list of the cleaned URLs |
+| `{dirty_links}` | newline-separated list of the original (dirty) URLs |
+
+The singular `{cleaned_link}` / `{dirty_link}` let you tailor instructions to
+the user's real, immediate link instead of a confusing mockup. For example:
+
+> Your link `{dirty_link}` had a tracking tag. The clean version is
+> `{cleaned_link}` — copy that one from your browser's address bar next time.
 
 Example: `Hi {author}, we cleaned {count} link(s) in {subreddit}:\n{cleaned_links}`
 
